@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently --kill-others \"npx tsc -w\" \"npm run server\"",
     "server": "nodemon dist/index.js",
-    "prod": "node dist/index.js"
+    "prod": "npx tsc && node dist/index.js"
   },
   "keywords": [],
   "author": "",
