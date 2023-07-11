@@ -8,16 +8,30 @@ const pool = createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
-  database: process.env.DATABASE_NAME,
+  database: process.env.DB_NAME,
+});
+
+pool.on("error", (err) => {
+  console.error(err);
 });
 
 pool.getConnection((err, connection) => {
   if (err) {
     console.log("Error connecting to database...");
-    return console.error(err);
+    console.error(err);
+  } else {
+    console.log("Database connected successfully");
+    connection.release();
   }
-  console.log("Database connected successfully");
-  connection.release();
 });
+
+const heartbeat = setInterval(() => {
+  pool.query(`SELECT 1;`, (err, result) => {
+    if (err) {
+      console.error(err);
+      clearInterval(heartbeat);
+    }
+  });
+}, 1000);
 
 export default pool;
