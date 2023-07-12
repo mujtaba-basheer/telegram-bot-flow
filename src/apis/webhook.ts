@@ -12,6 +12,7 @@ export const messageReceived = async (
 ) => {
   try {
     const update = req.body as UpdateT;
+    console.log(update);
 
     await processUpdate(update, res, next);
   } catch (error) {
