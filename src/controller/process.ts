@@ -1,7 +1,4 @@
-// import db from "../db";
-import queryp from "../utils/db";
-import AppError from "../utils/app-error";
-import { answerQuery, sendMessage } from "../utils/bot";
+import { sendMessage } from "../utils/bot";
 import { processCommand } from "./command";
 import processText from "./text";
 import { NextFunction, Response } from "express";

@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import AppError from "../utils/app-error";
-import { sendMessage } from "../utils/bot";
 import processUpdate from "../controller/process";
 import { config } from "dotenv";
 import { UpdateT } from "../../index.d";

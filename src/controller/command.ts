@@ -1,5 +1,5 @@
 import { sendMessage, sendMessageKeyboard } from "../utils/bot";
-import queryp from "../utils/db";
+import db from "../db";
 import { UpdateT, TransactionT } from "../../index.d";
 import store from "../store";
 
@@ -10,14 +10,18 @@ const handleStart: (
   chat_id: number
 ) => Promise<void> = async (first_name, last_name, username, chat_id) => {
   try {
-    await queryp(`INSERT INTO
-        users VALUES (
-        "${first_name}",
-        "${last_name}",
-        "${username}",
-        NULL,
-        NOW()
-    );`);
+    await db.promise().query(`
+    INSERT INTO
+      users
+    VALUES
+    (
+      "${first_name}",
+      "${last_name}",
+      "${username}",
+      NULL,
+      NOW()
+    );
+    `);
     sendMessage(chat_id, "Your account has been registered successfully!");
   } catch (error) {
     if (error.errno === 1062) {

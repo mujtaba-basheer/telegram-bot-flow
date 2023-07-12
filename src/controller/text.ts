@@ -1,5 +1,5 @@
 import { sendMessage, sendMessageKeyboard } from "../utils/bot";
-import queryp from "../utils/db";
+import db from "../db";
 import { UpdateT, CategoryT } from "../../index.d";
 import store from "../store";
 const toEmoji = require("emoji-name-map");
@@ -11,11 +11,14 @@ const handleNumber: (
 ) => Promise<void> = async (amt, chat_id, command) => {
   try {
     await store.set(`${chat_id}:amount`, amt);
-    const { results } = await queryp(
-      `SELECT name, slug, emoji FROM categories WHERE type = "${command.replace(
-        "/",
-        ""
-      )}";`
+    const [results] = await db.promise().query(
+      `SELECT
+        name, slug, emoji
+       FROM
+        categories
+       WHERE
+        type = "${command.replace("/", "")}";
+      `
     );
     const categories = results as CategoryT[];
     const buttons = [],

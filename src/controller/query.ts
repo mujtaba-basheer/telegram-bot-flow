@@ -1,5 +1,5 @@
 import store from "../store";
-import queryp from "../utils/db";
+import db from "../db";
 import { sendMessage, answerQuery, formatCurrency } from "../utils/bot";
 import { CallbackQueryT, CategoryT } from "../../index";
 const toEmoji = require("emoji-name-map");
@@ -20,11 +20,15 @@ const handleCategory: (
     switch (command) {
       case "/earning":
       case "/expend": {
-        const { results } = await queryp(`
-        SELECT name, emoji, slug
-        FROM categories
-        WHERE slug = "${category}"
-        LIMIT 1;
+        const [results] = await db.promise().query(`
+        SELECT
+          name, emoji, slug
+        FROM
+          categories
+        WHERE
+          slug = "${category}"
+        LIMIT
+          1;
         `);
         const { name, emoji } = results[0] as CategoryT;
         sendMessage(
@@ -36,7 +40,7 @@ const handleCategory: (
           )}</b>\nCategory: ${name} ${toEmoji.get(emoji)}`,
           "HTML"
         );
-        await queryp(`
+        await db.promise().query(`
         INSERT INTO transactions
         VALUES (
           ${amount},
@@ -78,12 +82,18 @@ const handleStats: (
           cemoji: string;
           timestamp: string;
         };
-        const { results } = await queryp<TxC[]>(`
-        SELECT amount, timestamp, transactions.type, categories.name AS cname, categories.emoji AS cemoji
-        FROM transactions
-        LEFT JOIN categories
-        ON transactions.category = categories.slug
-        WHERE transactions.user = "${username}"
+        // @ts-ignore
+        const [results] = await db.promise().query<TxC[]>(`
+        SELECT
+          amount, timestamp, transactions.type, categories.name AS cname, categories.emoji AS cemoji
+        FROM
+          transactions
+        LEFT JOIN
+          categories
+        ON
+          transactions.category = categories.slug
+        WHERE
+          transactions.user = "${username}"
         ORDER BY timestamp DESC
         LIMIT 10;
         `);
@@ -105,7 +115,8 @@ const handleStats: (
           type: string;
           sum: number;
         };
-        const { results: byTypeRes } = await queryp<ByTypeT[]>(`
+        // @ts-ignore
+        const [byTypeRes] = await db.promise().query<ByTypeT[]>(`
         SELECT transactions.type, SUM(transactions.amount) AS sum
         FROM transactions
         WHERE transactions.user = "mujtaba_basheer"
@@ -131,7 +142,8 @@ const handleStats: (
           cemoji: string;
           sum: number;
         };
-        const { results: byCatRes } = await queryp<ByCatT[]>(`
+        // @ts-ignore
+        const [byCatRes] = await db.promise().query<ByCatT[]>(`
         SELECT categories.name as cname, categories.emoji as cemoji, SUM(transactions.amount) AS sum
         FROM transactions
         LEFT JOIN categories

@@ -25,13 +25,13 @@ pool.getConnection((err, connection) => {
   }
 });
 
-// const heartbeat = setInterval(() => {
-//   pool.query(`SELECT 1;`, (err, result) => {
-//     if (err) {
-//       console.error(err);
-//       clearInterval(heartbeat);
-//     }
-//   });
-// }, 1000);
+const heartbeat = setInterval(() => {
+  pool.query(`SELECT 1;`, (err, result) => {
+    if (err) {
+      console.error(err);
+      clearInterval(heartbeat);
+    }
+  });
+}, 1000);
 
 export default pool;
