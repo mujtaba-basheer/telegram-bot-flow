@@ -8,7 +8,6 @@ const dotenv_1 = require("dotenv");
 const messageReceived = async (req, res, next) => {
     try {
         const update = req.body;
-        console.log(update);
         await (0, process_1.default)(update, res, next);
     }
     catch (error) {

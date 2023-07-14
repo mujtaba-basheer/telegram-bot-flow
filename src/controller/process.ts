@@ -14,6 +14,7 @@ const processUpdate = async (
   let c_id: number | string = "";
   try {
     if (message) {
+      console.log(message);
       const {
         entities,
         text,

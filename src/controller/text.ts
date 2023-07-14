@@ -98,6 +98,7 @@ export const processText = async (text: string, update: UpdateT) => {
         break;
       }
       default: {
+        sendMessage(chat_id, "Invalid command or option 😅");
         break;
       }
     }

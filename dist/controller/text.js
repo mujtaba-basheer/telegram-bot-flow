@@ -82,6 +82,7 @@ const processText = async (text, update) => {
                 break;
             }
             default: {
+                (0, bot_1.sendMessage)(chat_id, "Invalid command or option 😅");
                 break;
             }
         }

@@ -98,15 +98,25 @@ const handleStats: (
         LIMIT 10;
         `);
         let message = "Your most recent transactions:\n\n";
-        for (let i = 0; i < results.length; i++) {
-          const { amount, timestamp, type, cname, cemoji } = results[i];
-          const d = new Date(timestamp);
-          message += `Date: ${d.toDateString()}, ${d.toLocaleTimeString()}\n`;
-          message += `Amount: <b>${formatCurrency(amount)}</b>\n`;
-          message += `Type: ${type === "expend" ? "Expenditure" : "Earning"}\n`;
-          message += `Category: ${cname} ${toEmoji.get(cemoji)}\n\n`;
+        if (results.length) {
+          for (let i = 0; i < results.length; i++) {
+            const { amount, timestamp, type, cname, cemoji } = results[i];
+            const d = new Date(timestamp);
+            message += `Date: ${d.toDateString()}, ${d.toLocaleTimeString()}\n`;
+            message += `Amount: <b>${formatCurrency(amount)}</b>\n`;
+            message += `Type: ${
+              type === "expend" ? "Expenditure" : "Earning"
+            }\n`;
+            message += `Category: ${cname} ${toEmoji.get(cemoji)}\n\n`;
+          }
+          sendMessage(chat_id, message, "HTML");
+        } else {
+          sendMessage(
+            chat_id,
+            "Seems like you've no recent transactions at the moment 😬",
+            "HTML"
+          );
         }
-        sendMessage(chat_id, message, "HTML");
 
         break;
       }
@@ -117,10 +127,14 @@ const handleStats: (
         };
         // @ts-ignore
         const [byTypeRes] = await db.promise().query<ByTypeT[]>(`
-        SELECT transactions.type, SUM(transactions.amount) AS sum
-        FROM transactions
-        WHERE transactions.user = "mujtaba_basheer"
-        GROUP BY transactions.type;
+        SELECT
+          transactions.type, SUM(transactions.amount) AS sum
+        FROM
+          transactions
+        WHERE
+          transactions.user = "mujtaba_basheer"
+        GROUP BY
+          transactions.type;
         `);
         let total: number = byTypeRes.reduce<number>((p, c) => (p += c.sum), 0);
 
@@ -144,20 +158,32 @@ const handleStats: (
         };
         // @ts-ignore
         const [byCatRes] = await db.promise().query<ByCatT[]>(`
-        SELECT categories.name as cname, categories.emoji as cemoji, SUM(transactions.amount) AS sum
-        FROM transactions
-        LEFT JOIN categories
-        ON transactions.category = categories.slug
-        WHERE transactions.user = "${username}" AND transactions.type = "expend"
-        GROUP BY transactions.category;
+        SELECT
+          categories.name as cname, categories.emoji as cemoji, SUM(transactions.amount) AS sum
+        FROM
+          transactions
+        LEFT JOIN
+          categories
+        ON
+          transactions.category = categories.slug
+        WHERE
+          transactions.user = "${username}" AND transactions.type = "expend"
+        GROUP BY
+          transactions.category,
+          categories.name,
+          categories.emoji;
         `);
         total = byCatRes.reduce<number>((p, c) => (p += c.sum), 0);
-        message = `Expenditure breakdown:\n\n`;
-        for (let i = 0; i < byCatRes.length; i++) {
-          const { cemoji, cname, sum } = byCatRes[i];
-          const percentage = ((sum / total) * 100).toFixed(2);
-          const catDisplay = `${cname} ${toEmoji.get(cemoji)}`;
-          message += `${catDisplay}: Rs. ${sum} (${percentage}%)\n`;
+        if (byCatRes.length) {
+          message = `Expenditure breakdown:\n\n`;
+          for (let i = 0; i < byCatRes.length; i++) {
+            const { cemoji, cname, sum } = byCatRes[i];
+            const percentage = ((sum / total) * 100).toFixed(2);
+            const catDisplay = `${cname} ${toEmoji.get(cemoji)}`;
+            message += `${catDisplay}: Rs. ${sum} (${percentage}%)\n`;
+          }
+        } else {
+          message = "There are no recorded expenditures at the moment 🧐";
         }
         sendMessage(chat_id, message, "HTML");
 
