@@ -71,6 +71,35 @@ const handleStats: (chat_id: number) => Promise<void> = async (chat_id) => {
   }
 };
 
+const handleCategories: (chat_id: number) => Promise<void> = async (
+  chat_id
+) => {
+  try {
+    await store.set(`${chat_id}:next`, "view/add category");
+    const buttons = [
+      [
+        {
+          text: "View categories 🧐",
+          callback_data: `${chat_id}:categories:view`,
+        },
+      ],
+      [
+        {
+          text: "Add a category ➕",
+          callback_data: `${chat_id}:categories:add`,
+        },
+      ],
+    ];
+    const reply_markup = {
+      inline_keyboard: buttons,
+    };
+    sendMessageKeyboard(chat_id, "Please select an option:", reply_markup);
+  } catch (error) {
+    console.error(error);
+    sendMessage(chat_id, "Oops! There was some error processing your data 😵‍💫");
+  }
+};
+
 export const processCommand = async (command: string, update: UpdateT) => {
   const {
     message: {
@@ -97,7 +126,15 @@ export const processCommand = async (command: string, update: UpdateT) => {
         await handleStats(chat_id);
         break;
       }
+      case "/categories": {
+        await handleCategories(chat_id);
+        break;
+      }
       default: {
+        sendMessage(
+          chat_id,
+          "Oops! There was some error processing your data 😵‍💫"
+        );
         break;
       }
     }

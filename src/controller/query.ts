@@ -53,6 +53,10 @@ const handleCategory: (
         break;
       }
       default: {
+        sendMessage(
+          chat_id,
+          "Oops! There was some error processing your data 😵‍💫"
+        );
         break;
       }
     }
@@ -221,7 +225,14 @@ const processQuery: (
         answerQuery(callback_query_id);
         break;
       }
+      case "categories": {
+        break;
+      }
       default: {
+        sendMessage(
+          chat_id,
+          "Oops! There was some error processing your data 😵‍💫"
+        );
         break;
       }
     }

@@ -64,6 +64,33 @@ const handleStats = async (chat_id) => {
         (0, bot_1.sendMessage)(chat_id, "Oops! There was some error processing your data 😵‍💫");
     }
 };
+const handleCategories = async (chat_id) => {
+    try {
+        await store_1.default.set(`${chat_id}:next`, "view/add category");
+        const buttons = [
+            [
+                {
+                    text: "View categories 🧐",
+                    callback_data: `${chat_id}:categories:view`,
+                },
+            ],
+            [
+                {
+                    text: "Add a category ➕",
+                    callback_data: `${chat_id}:categories:add`,
+                },
+            ],
+        ];
+        const reply_markup = {
+            inline_keyboard: buttons,
+        };
+        (0, bot_1.sendMessageKeyboard)(chat_id, "Please select an option:", reply_markup);
+    }
+    catch (error) {
+        console.error(error);
+        (0, bot_1.sendMessage)(chat_id, "Oops! There was some error processing your data 😵‍💫");
+    }
+};
 const processCommand = async (command, update) => {
     const { message: { from: { first_name, last_name, username }, chat: { id: chat_id }, }, } = update;
     try {
@@ -85,7 +112,12 @@ const processCommand = async (command, update) => {
                 await handleStats(chat_id);
                 break;
             }
+            case "/categories": {
+                await handleCategories(chat_id);
+                break;
+            }
             default: {
+                (0, bot_1.sendMessage)(chat_id, "Oops! There was some error processing your data 😵‍💫");
                 break;
             }
         }

@@ -9,7 +9,6 @@ const processUpdate = async (update, res, next) => {
     let c_id = "";
     try {
         if (message) {
-            console.log(message);
             const { entities, text, chat: { id: chat_id }, } = message;
             c_id = chat_id;
             if (entities) {

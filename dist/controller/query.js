@@ -37,6 +37,7 @@ const handleCategory = async (category, callback_query) => {
                 break;
             }
             default: {
+                (0, bot_1.sendMessage)(chat_id, "Oops! There was some error processing your data 😵‍💫");
                 break;
             }
         }
@@ -161,7 +162,11 @@ const processQuery = async (callback_query_id, callback_data, callback_query) =>
                 (0, bot_1.answerQuery)(callback_query_id);
                 break;
             }
+            case "categories": {
+                break;
+            }
             default: {
+                (0, bot_1.sendMessage)(chat_id, "Oops! There was some error processing your data 😵‍💫");
                 break;
             }
         }

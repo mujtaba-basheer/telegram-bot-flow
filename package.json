@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "concurrently --kill-others \"npx tsc -w\" \"npm run server\"",
     "server": "nodemon dist/index.js",
-    "prod": "npx tsc && node dist/index.js"
+    "prod": "npx tsc && node dist/index.js",
+    "ngrok": "ngrok http 5000 --domain=https://locally-fluent-quail.ngrok-free.app"
   },
   "keywords": [],
   "author": "",
