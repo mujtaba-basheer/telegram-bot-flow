@@ -66,7 +66,7 @@ const handleStats = async (chat_id) => {
 };
 const handleCategories = async (chat_id) => {
     try {
-        await store_1.default.set(`${chat_id}:next`, "view/add category");
+        await store_1.default.set(`${chat_id}:next`, "view/add");
         const buttons = [
             [
                 {

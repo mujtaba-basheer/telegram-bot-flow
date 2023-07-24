@@ -1,4 +1,5 @@
 import { config } from "dotenv";
+import store from "../store";
 import * as https from "https";
 import {
   SendMessageFuncT,
@@ -6,6 +7,13 @@ import {
   AnswerQueryFuncT,
 } from "../../index.d";
 config();
+
+type SendMessageRespT = {
+  ok: boolean;
+  result: {
+    message_id: number;
+  };
+};
 
 export const sendMessage: SendMessageFuncT = (chat_id, text, parse_mode) => {
   const data = JSON.stringify({
@@ -71,9 +79,12 @@ export const sendMessageKeyboard: SendMessageKeyboardFuncT = (
 
       res.on("data", (chunk) => (data += chunk.toString()));
 
-      res.on("end", () => {
-        if (res.statusCode === 200) console.log("Message sent successfully!");
-        else {
+      res.on("end", async () => {
+        if (res.statusCode === 200) {
+          console.log("Message sent successfully!");
+          const resp = JSON.parse(data) as SendMessageRespT;
+          await store.set(`${chat_id}:message_id`, resp.result.message_id);
+        } else {
           console.log("Error Sending Message!");
           console.log(data);
         }
@@ -135,4 +146,14 @@ export const formatCurrency: (amt: number) => string = (amt) => {
     minimumFractionDigits: 2,
   });
   return f.format(amt);
+};
+
+export const slugify: (categoryName: string, chat_id: number) => string = (
+  categoryName,
+  chat_id
+) => {
+  let slug: string = `${categoryName
+    .toLowerCase()
+    .replace(/[\s\n\t]/g, "_")}-${chat_id}`;
+  return slug;
 };

@@ -1,4 +1,4 @@
-import { sendMessage, sendMessageKeyboard } from "../utils/bot";
+import { sendMessage, sendMessageKeyboard, slugify } from "../utils/bot";
 import db from "../db";
 import { UpdateT, CategoryT } from "../../index.d";
 import store from "../store";
@@ -7,8 +7,9 @@ const toEmoji = require("emoji-name-map");
 const handleNumber: (
   amt: number,
   chat_id: number,
+  username: string,
   command: string
-) => Promise<void> = async (amt, chat_id, command) => {
+) => Promise<void> = async (amt, chat_id, username, command) => {
   try {
     await store.set(`${chat_id}:amount`, amt);
     const [results] = await db.promise().query(
@@ -17,7 +18,11 @@ const handleNumber: (
        FROM
         categories
        WHERE
-        type = "${command.replace("/", "")}";
+        type = "${command.replace("/", "")}"
+        AND (
+          user = "global"
+          OR user = "${username}"
+        );
       `
     );
     const categories = results as CategoryT[];
@@ -43,7 +48,7 @@ const handleNumber: (
     const reply_markup = {
       inline_keyboard: categories.map((c) => [
         {
-          text: c.name + " " + toEmoji.get(c.emoji),
+          text: c.name + (c.emoji ? " " + toEmoji.get(c.emoji) : ""),
           callback_data: `${chat_id}:category:${c.slug}`,
         },
       ]),
@@ -60,10 +65,54 @@ const handleNumber: (
   }
 };
 
-export const processText = async (text: string, update: UpdateT) => {
+// when a user enters the name of the category he/she wants to add
+const handleCategoryName: (
+  name: string,
+  chat_id: number,
+  command: string
+) => Promise<void> = async (name, chat_id, command) => {
+  try {
+    {
+      console.log(name, name.split(" "));
+      sendMessage(chat_id, "Yo");
+      return;
+    }
+    const slug = slugify(name, chat_id);
+    await store.set(`${chat_id}:cat-name`, name);
+    await store.set(`${chat_id}:cat-slug`, slug);
+
+    const inline_keyboard = [
+      [
+        {
+          text: "Way of expenditure",
+          callback_data: `${chat_id}:cat-type:expend`,
+        },
+        {
+          text: "Source of earning",
+          callback_data: `${chat_id}:cat-type:earning`,
+        },
+      ],
+    ];
+    const reply_markup = {
+      inline_keyboard,
+    };
+    sendMessageKeyboard(
+      chat_id,
+      "Please select the category type from the inline keyboard.",
+      reply_markup
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const processText: (
+  text: string,
+  update: UpdateT
+) => Promise<void> = async (text, update) => {
   const {
     message: {
-      chat: { id: chat_id },
+      chat: { id: chat_id, username },
     },
   } = update;
   try {
@@ -83,7 +132,7 @@ export const processText = async (text: string, update: UpdateT) => {
               } else sendMessage(chat_id, "Please enter a valid number 😅");
             } else {
               await store.set(`${chat_id}:next`, "category");
-              handleNumber(+text, chat_id, command);
+              handleNumber(+text, chat_id, username, command);
             }
             break;
           }
@@ -92,6 +141,21 @@ export const processText = async (text: string, update: UpdateT) => {
               chat_id,
               "Please select a category from the inline keyboard."
             );
+            break;
+          }
+        }
+        break;
+      }
+      case "/categories": {
+        const next = await store.get(`${chat_id}:next`);
+        switch (next) {
+          case "cat-name": {
+            if (text.includes("\n")) {
+              sendMessage(
+                chat_id,
+                "Please do not inlcude line breaks in category name 😅"
+              );
+            } else handleCategoryName(text, chat_id, command);
             break;
           }
         }

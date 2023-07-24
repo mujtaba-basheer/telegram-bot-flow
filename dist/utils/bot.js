@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.formatCurrency = exports.answerQuery = exports.sendMessageKeyboard = exports.sendMessage = void 0;
+exports.slugify = exports.formatCurrency = exports.answerQuery = exports.sendMessageKeyboard = exports.sendMessage = void 0;
 const dotenv_1 = require("dotenv");
+const store_1 = require("../store");
 const https = require("https");
 (0, dotenv_1.config)();
 const sendMessage = (chat_id, text, parse_mode) => {
@@ -52,9 +53,12 @@ const sendMessageKeyboard = (chat_id, text, reply_markup) => {
         let data = "";
         res.on("error", (err) => console.error(err));
         res.on("data", (chunk) => (data += chunk.toString()));
-        res.on("end", () => {
-            if (res.statusCode === 200)
+        res.on("end", async () => {
+            if (res.statusCode === 200) {
                 console.log("Message sent successfully!");
+                const resp = JSON.parse(data);
+                await store_1.default.set(`${chat_id}:message_id`, resp.result.message_id);
+            }
             else {
                 console.log("Error Sending Message!");
                 console.log(data);
@@ -107,3 +111,10 @@ const formatCurrency = (amt) => {
     return f.format(amt);
 };
 exports.formatCurrency = formatCurrency;
+const slugify = (categoryName, chat_id) => {
+    let slug = `${categoryName
+        .toLowerCase()
+        .replace(/[\s\n\t]/g, "_")}-${chat_id}`;
+    return slug;
+};
+exports.slugify = slugify;

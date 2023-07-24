@@ -75,7 +75,7 @@ const handleCategories: (chat_id: number) => Promise<void> = async (
   chat_id
 ) => {
   try {
-    await store.set(`${chat_id}:next`, "view/add category");
+    await store.set(`${chat_id}:next`, "view/add");
     const buttons = [
       [
         {
