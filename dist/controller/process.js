@@ -6,13 +6,17 @@ const text_1 = require("./text");
 const query_1 = require("./query");
 const processUpdate = async (update, res, next) => {
     const { message, callback_query } = update;
+    console.log(message);
     let c_id = "";
     try {
         if (message) {
             const { entities, text, chat: { id: chat_id }, } = message;
             c_id = chat_id;
-            if (entities) {
-                for (const entity of entities) {
+            const c_entities = entities
+                ? entities.filter((e) => e.type === "bot_command")
+                : [];
+            if (entities && c_entities.length) {
+                for (const entity of c_entities) {
                     const { type, offset, length } = entity;
                     if (type === "bot_command") {
                         const command = text
