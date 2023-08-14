@@ -4,6 +4,7 @@ import store from "../../store";
 
 import { handleCategoryEmoji, handleCategoryName } from "./categories";
 import { handleNumber } from "./record";
+import { handleBudgetAmount } from "./budgets";
 
 export const processText: (
   text: string,
@@ -16,10 +17,12 @@ export const processText: (
   } = update;
   try {
     const command = await store.get(`${chat_id}:command`);
+    const next = await store.get(`${chat_id}:next`);
+    text = text.trim();
+
     switch (command) {
       case "/earning":
       case "/expend": {
-        const next = await store.get(`${chat_id}:next`);
         switch (next) {
           case "amount": {
             if (isNaN(+text)) {
@@ -62,6 +65,15 @@ export const processText: (
           }
           case "add-emoji": {
             handleCategoryEmoji(text, chat_id, command);
+            break;
+          }
+        }
+        break;
+      }
+      case "/budgets": {
+        switch (next) {
+          case "budget-amount": {
+            handleBudgetAmount(+text, chat_id, username);
             break;
           }
         }

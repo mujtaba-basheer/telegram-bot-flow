@@ -1,4 +1,5 @@
 import { sendMessage, answerQuery } from "../../utils/bot";
+import store from "../../store";
 import { CallbackQueryT } from "../../../index";
 
 import {
@@ -8,6 +9,7 @@ import {
 } from "./categories";
 import { handleCategory } from "./record";
 import { handleStats } from "./stats";
+import { handleBudgets, handleBudgetCategories } from "./budgets";
 
 const processQuery: (
   callback_query_id: string,
@@ -20,30 +22,63 @@ const processQuery: (
 ) => {
   const [chat_id, type, data] = callback_data.split(":");
   try {
-    switch (type) {
-      case "category": {
+    const command = await store.get(`${chat_id}:command`);
+    const next = await store.get(`${chat_id}:next`);
+    console.log({ data, command, next });
+
+    switch (command) {
+      case "/earning":
+      case "/expend": {
         handleCategory(data, callback_query);
         answerQuery(callback_query_id);
         break;
       }
-      case "stats": {
+      case "/stats": {
         handleStats(data, callback_query);
         answerQuery(callback_query_id);
         break;
       }
-      case "categories": {
-        handleCategories(data, callback_query);
-        answerQuery(callback_query_id);
+      case "/categories": {
+        switch (next) {
+          case "view/add": {
+            handleCategories(data, callback_query);
+            answerQuery(callback_query_id);
+            break;
+          }
+          case "add-emoji?": {
+            handleShouldAddEmoji(data, callback_query);
+            answerQuery(callback_query_id);
+            break;
+          }
+          case "cat-type": {
+            handleCategoryType(data, callback_query);
+            answerQuery(callback_query_id);
+            break;
+          }
+          default: {
+            sendMessage(
+              chat_id,
+              "Seems like you entered an invalid text or option 😵"
+            );
+            break;
+          }
+        }
+
         break;
       }
-      case "cat-type": {
-        handleCategoryType(data, callback_query);
-        answerQuery(callback_query_id);
-        break;
-      }
-      case "add-emoji?": {
-        handleShouldAddEmoji(data, callback_query);
-        answerQuery(callback_query_id);
+      case "/budgets": {
+        switch (next) {
+          case "view/set": {
+            handleBudgets(data, callback_query);
+            answerQuery(callback_query_id);
+            break;
+          }
+          case "budget-categories": {
+            handleBudgetCategories(data, callback_query);
+            answerQuery(callback_query_id);
+            break;
+          }
+        }
         break;
       }
       default: {

@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import { getUserDetails } from "../utils/user";
 import { decrypt } from "../utils/auth";
 import AppError from "../utils/app-error";
 import catchAsync from "../utils/catch-async";
@@ -13,10 +12,10 @@ export const protect = catchAsync(
         let [mid, token] = unparsed_token.split(".");
         token = decrypt(token);
         try {
-          const user = await getUserDetails(token);
+          // const user = await getUserDetails(token);
           req.headers.authorization = token;
-          user.data.mid = mid;
-          req.user = user;
+          // user.data.mid = mid;
+          // req.user = user;
           next();
         } catch (error) {
           throw new AppError("Token Invalid or Expired", 403);

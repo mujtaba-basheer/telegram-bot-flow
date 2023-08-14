@@ -20,10 +20,9 @@
     "@types/redis": "^4.0.11",
     "concurrently": "^7.2.2",
     "morgan": "^1.10.0",
-    "typescript": "^4.7.3"
+    "typescript": "^5.1.6"
   },
   "dependencies": {
-    "aws-sdk": "^2.1162.0",
     "base64url": "^3.0.1",
     "dotenv": "^16.0.1",
     "emoji-name-map": "^1.2.9",

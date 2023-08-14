@@ -71,6 +71,33 @@ const handleStats: (chat_id: number) => Promise<void> = async (chat_id) => {
   }
 };
 
+const handleBudgets: (chat_id: number) => Promise<void> = async (chat_id) => {
+  try {
+    await store.set(`${chat_id}:next`, "view/set");
+    const buttons = [
+      [
+        {
+          text: "View Existing Budgets 📃",
+          callback_data: `${chat_id}:budgets:view`,
+        },
+      ],
+      [
+        {
+          text: "Set a new Budget 📝",
+          callback_data: `${chat_id}:budgets:set`,
+        },
+      ],
+    ];
+    const reply_markup = {
+      inline_keyboard: buttons,
+    };
+    sendMessageKeyboard(chat_id, "Please select an option:", reply_markup);
+  } catch (error) {
+    console.error(error);
+    sendMessage(chat_id, "Oops! There was some error processing your data 😵‍💫");
+  }
+};
+
 const handleCategories: (chat_id: number) => Promise<void> = async (
   chat_id
 ) => {
@@ -124,6 +151,10 @@ export const processCommand = async (command: string, update: UpdateT) => {
       }
       case "/stats": {
         await handleStats(chat_id);
+        break;
+      }
+      case "/budgets": {
+        await handleBudgets(chat_id);
         break;
       }
       case "/categories": {

@@ -1,36 +1,66 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const bot_1 = require("../../utils/bot");
+const store_1 = require("../../store");
 const categories_1 = require("./categories");
 const record_1 = require("./record");
 const stats_1 = require("./stats");
+const budgets_1 = require("./budgets");
 const processQuery = async (callback_query_id, callback_data, callback_query) => {
     const [chat_id, type, data] = callback_data.split(":");
     try {
-        switch (type) {
-            case "category": {
+        const command = await store_1.default.get(`${chat_id}:command`);
+        const next = await store_1.default.get(`${chat_id}:next`);
+        console.log({ data, command, next });
+        switch (command) {
+            case "/earning":
+            case "/expend": {
                 (0, record_1.handleCategory)(data, callback_query);
                 (0, bot_1.answerQuery)(callback_query_id);
                 break;
             }
-            case "stats": {
+            case "/stats": {
                 (0, stats_1.handleStats)(data, callback_query);
                 (0, bot_1.answerQuery)(callback_query_id);
                 break;
             }
-            case "categories": {
-                (0, categories_1.handleCategories)(data, callback_query);
-                (0, bot_1.answerQuery)(callback_query_id);
+            case "/categories": {
+                switch (next) {
+                    case "view/add": {
+                        (0, categories_1.handleCategories)(data, callback_query);
+                        (0, bot_1.answerQuery)(callback_query_id);
+                        break;
+                    }
+                    case "add-emoji?": {
+                        (0, categories_1.handleShouldAddEmoji)(data, callback_query);
+                        (0, bot_1.answerQuery)(callback_query_id);
+                        break;
+                    }
+                    case "cat-type": {
+                        (0, categories_1.handleCategoryType)(data, callback_query);
+                        (0, bot_1.answerQuery)(callback_query_id);
+                        break;
+                    }
+                    default: {
+                        (0, bot_1.sendMessage)(chat_id, "Seems like you entered an invalid text or option 😵");
+                        break;
+                    }
+                }
                 break;
             }
-            case "cat-type": {
-                (0, categories_1.handleCategoryType)(data, callback_query);
-                (0, bot_1.answerQuery)(callback_query_id);
-                break;
-            }
-            case "add-emoji?": {
-                (0, categories_1.handleShouldAddEmoji)(data, callback_query);
-                (0, bot_1.answerQuery)(callback_query_id);
+            case "/budgets": {
+                switch (next) {
+                    case "view/set": {
+                        (0, budgets_1.handleBudgets)(data, callback_query);
+                        (0, bot_1.answerQuery)(callback_query_id);
+                        break;
+                    }
+                    case "budget-categories": {
+                        (0, budgets_1.handleBudgetCategories)(data, callback_query);
+                        (0, bot_1.answerQuery)(callback_query_id);
+                        break;
+                    }
+                }
                 break;
             }
             default: {

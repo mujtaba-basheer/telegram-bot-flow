@@ -4,6 +4,8 @@ import * as https from "https";
 import {
   SendMessageFuncT,
   SendMessageKeyboardFuncT,
+  UpdateMessageKeyboardFuncT,
+  SendPollFuncT,
   AnswerQueryFuncT,
 } from "../../index.d";
 config();
@@ -66,6 +68,97 @@ export const sendMessageKeyboard: SendMessageKeyboardFuncT = (
     {
       hostname: "api.telegram.org",
       path: `/bot${process.env.TELEGRAM_API_TOKEN}/sendMessage`,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(data),
+      },
+    },
+    (res) => {
+      let data = "";
+
+      res.on("error", (err) => console.error(err));
+
+      res.on("data", (chunk) => (data += chunk.toString()));
+
+      res.on("end", async () => {
+        if (res.statusCode === 200) {
+          console.log("Message sent successfully!");
+          const resp = JSON.parse(data) as SendMessageRespT;
+          await store.set(`${chat_id}:message_id`, resp.result.message_id);
+        } else {
+          console.log("Error Sending Message!");
+          console.log(data);
+        }
+      });
+    }
+  );
+
+  request.write(data);
+  // request.write(up.toString());
+  request.end();
+};
+
+export const updateMessageKeyboard: UpdateMessageKeyboardFuncT = async (
+  chat_id,
+  reply_markup
+) => {
+  try {
+    const message_id = await store.get(`${chat_id}:message_id`);
+    const data = JSON.stringify({
+      chat_id,
+      message_id,
+      reply_markup,
+    });
+
+    const request = https.request(
+      {
+        hostname: "api.telegram.org",
+        path: `/bot${process.env.TELEGRAM_API_TOKEN}/editMessageReplyMarkup`,
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(data),
+        },
+      },
+      (res) => {
+        let data = "";
+
+        res.on("error", (err) => console.error(err));
+
+        res.on("data", (chunk) => (data += chunk.toString()));
+
+        res.on("end", async () => {
+          if (res.statusCode === 200) {
+            console.log("Message keyboard updated successfully!");
+          } else {
+            console.log("Error Sending Message!");
+            console.log(data);
+          }
+        });
+      }
+    );
+
+    request.write(data);
+    // request.write(up.toString());
+    request.end();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const sendPoll: SendPollFuncT = (chat_id, question, options) => {
+  const data = JSON.stringify({
+    chat_id,
+    question,
+    options,
+    allows_multiple_answers: true,
+  });
+
+  const request = https.request(
+    {
+      hostname: "api.telegram.org",
+      path: `/bot${process.env.TELEGRAM_API_TOKEN}/sendPoll`,
       method: "POST",
       headers: {
         "Content-Type": "application/json",

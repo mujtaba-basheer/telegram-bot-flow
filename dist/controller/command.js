@@ -64,6 +64,33 @@ const handleStats = async (chat_id) => {
         (0, bot_1.sendMessage)(chat_id, "Oops! There was some error processing your data 😵‍💫");
     }
 };
+const handleBudgets = async (chat_id) => {
+    try {
+        await store_1.default.set(`${chat_id}:next`, "view/set");
+        const buttons = [
+            [
+                {
+                    text: "View Existing Budgets 📃",
+                    callback_data: `${chat_id}:budgets:view`,
+                },
+            ],
+            [
+                {
+                    text: "Set a new Budget 📝",
+                    callback_data: `${chat_id}:budgets:set`,
+                },
+            ],
+        ];
+        const reply_markup = {
+            inline_keyboard: buttons,
+        };
+        (0, bot_1.sendMessageKeyboard)(chat_id, "Please select an option:", reply_markup);
+    }
+    catch (error) {
+        console.error(error);
+        (0, bot_1.sendMessage)(chat_id, "Oops! There was some error processing your data 😵‍💫");
+    }
+};
 const handleCategories = async (chat_id) => {
     try {
         await store_1.default.set(`${chat_id}:next`, "view/add");
@@ -110,6 +137,10 @@ const processCommand = async (command, update) => {
             }
             case "/stats": {
                 await handleStats(chat_id);
+                break;
+            }
+            case "/budgets": {
+                await handleBudgets(chat_id);
                 break;
             }
             case "/categories": {

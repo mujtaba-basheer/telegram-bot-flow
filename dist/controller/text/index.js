@@ -5,14 +5,16 @@ const bot_1 = require("../../utils/bot");
 const store_1 = require("../../store");
 const categories_1 = require("./categories");
 const record_1 = require("./record");
+const budgets_1 = require("./budgets");
 const processText = async (text, update) => {
     const { message: { chat: { id: chat_id, username }, }, } = update;
     try {
         const command = await store_1.default.get(`${chat_id}:command`);
+        const next = await store_1.default.get(`${chat_id}:next`);
+        text = text.trim();
         switch (command) {
             case "/earning":
             case "/expend": {
-                const next = await store_1.default.get(`${chat_id}:next`);
                 switch (next) {
                     case "amount": {
                         if (isNaN(+text)) {
@@ -50,6 +52,15 @@ const processText = async (text, update) => {
                     }
                     case "add-emoji": {
                         (0, categories_1.handleCategoryEmoji)(text, chat_id, command);
+                        break;
+                    }
+                }
+                break;
+            }
+            case "/budgets": {
+                switch (next) {
+                    case "budget-amount": {
+                        (0, budgets_1.handleBudgetAmount)(+text, chat_id, username);
                         break;
                     }
                 }

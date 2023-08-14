@@ -67,6 +67,17 @@ type SendMessageKeyboardFuncT = (
   reply_markup: object
 ) => void;
 
+type UpdateMessageKeyboardFuncT = (
+  chat_id: number | string,
+  reply_markup: object
+) => Promise<void>;
+
+type SendPollFuncT = (
+  chat_id: number | string,
+  question: string,
+  options: string[]
+) => void;
+
 type AnswerQueryFuncT = (
   callback_query_id: string,
   text?: string,
