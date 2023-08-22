@@ -117,6 +117,10 @@ export const handleBudgets: (
           inline_keyboard,
         };
 
+        sendMessage(
+          chat_id,
+          "Please note, any budgets you set will be active from the beginning of the next month"
+        );
         sendMessageKeyboard(
           chat_id,
           "Please select the categories to inclde in the budget",

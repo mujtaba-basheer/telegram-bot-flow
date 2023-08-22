@@ -37,9 +37,7 @@ exports.handleCategoryName = handleCategoryName;
 const handleCategoryEmoji = async (code, chat_id, command) => {
     try {
         code = code.trim().toLowerCase();
-        console.log({ code });
         let emojiCode = "";
-        console.log(toEmoji.get(code));
         for (const key of Object.keys(toEmoji.emoji)) {
             if (key === code) {
                 emojiCode = code;

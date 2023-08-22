@@ -91,6 +91,7 @@ const handleBudgets = async (action, callback_query) => {
                 const reply_markup = {
                     inline_keyboard,
                 };
+                (0, bot_1.sendMessage)(chat_id, "Please note, any budgets you set will be active from the beginning of the next month");
                 (0, bot_1.sendMessageKeyboard)(chat_id, "Please select the categories to inclde in the budget", reply_markup);
                 await store_1.default.set(`${chat_id}:next`, "budget-categories");
                 await store_1.default.set(`${chat_id}:budget-categories`, JSON.stringify(selection));

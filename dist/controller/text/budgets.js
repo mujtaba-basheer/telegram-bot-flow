@@ -19,14 +19,18 @@ const handleBudgetAmount = async (amt, chat_id, username) => {
           status,
           isActive,
           user,
-          threshold
+          threshold,
+          date_added,
+          last_checked
         ) VALUES (
           ?,
           0.00,
           "ok",
           1,
           ?,
-          ?
+          ?,
+          CURRENT_TIMESTAMP(),
+          CURRENT_TIMESTAMP()
         );
         `;
             await db_1.default.promise().query({

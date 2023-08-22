@@ -1,6 +1,7 @@
 import store from "../../store";
 import db from "../../db";
 import { sendMessage, answerQuery, formatCurrency } from "../../utils/bot";
+import { checkBudgetOnTransaction } from "../../utils/budgets";
 import { CallbackQueryT, CategoryT } from "../../../index";
 const toEmoji = require("emoji-name-map");
 
@@ -42,7 +43,6 @@ export const handleCategory: (
           "HTML"
         );
 
-        console.log({ username, category });
         const insertQuery = `
         INSERT INTO transactions
         (
@@ -64,6 +64,7 @@ export const handleCategory: (
           sql: insertQuery,
           values: [amount, command.replace("/", ""), category, username],
         });
+        checkBudgetOnTransaction(chat_id, username, category, +amount);
         break;
       }
       default: {
