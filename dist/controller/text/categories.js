@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleCategoryEmoji = exports.handleCategoryName = void 0;
 const bot_1 = require("../../utils/bot");
 const store_1 = require("../../store");
-const toEmoji = require("emoji-name-map");
+const emojiUnicode = require("emoji-unicode");
 // when a user enters the name of the category he/she wants to add
 const handleCategoryName = async (name, chat_id, command) => {
     try {
@@ -34,21 +34,11 @@ const handleCategoryName = async (name, chat_id, command) => {
 };
 exports.handleCategoryName = handleCategoryName;
 // when a user enters an emoji for the added category
-const handleCategoryEmoji = async (code, chat_id, command) => {
+const handleCategoryEmoji = async (text, chat_id, command) => {
     try {
-        code = code.trim().toLowerCase();
-        let emojiCode = "";
-        for (const key of Object.keys(toEmoji.emoji)) {
-            if (key === code) {
-                emojiCode = code;
-                break;
-            }
-        }
-        if (emojiCode === "") {
-            (0, bot_1.sendMessage)(chat_id, "Sorry but we couldn't find this emoji-code in out records 😞\nPlease enter another emoji");
-            return;
-        }
-        await store_1.default.set(`${chat_id}:cat-emoji`, emojiCode);
+        const emoji = text.trim();
+        const unicode = emojiUnicode(emoji);
+        await store_1.default.set(`${chat_id}:cat-emoji`, unicode);
         await store_1.default.set(`${chat_id}:next`, "cat-type");
         const inline_keyboard = [
             [

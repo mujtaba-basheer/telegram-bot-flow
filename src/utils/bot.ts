@@ -7,6 +7,8 @@ import {
   UpdateMessageKeyboardFuncT,
   SendPollFuncT,
   AnswerQueryFuncT,
+  SlugifyFuncT,
+  UnicodeToEmojiFuncT,
 } from "../../index.d";
 config();
 
@@ -241,12 +243,19 @@ export const formatCurrency: (amt: number) => string = (amt) => {
   return f.format(amt);
 };
 
-export const slugify: (categoryName: string, chat_id: number) => string = (
-  categoryName,
-  chat_id
-) => {
+export const slugify: SlugifyFuncT = (categoryName, chat_id) => {
   let slug: string = `${categoryName
     .toLowerCase()
     .replace(/[\s\n\t]/g, "_")}-${chat_id}`;
   return slug;
+};
+
+export const unicodeToEmoji: UnicodeToEmojiFuncT = (unicode) => {
+  const set = unicode.split(" ");
+  const emoji = set
+    .map((s) => {
+      return String.fromCodePoint(parseInt(s, 16));
+    })
+    .join("");
+  return emoji;
 };

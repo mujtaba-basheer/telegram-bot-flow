@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.slugify = exports.formatCurrency = exports.answerQuery = exports.sendPoll = exports.updateMessageKeyboard = exports.sendMessageKeyboard = exports.sendMessage = void 0;
+exports.unicodeToEmoji = exports.slugify = exports.formatCurrency = exports.answerQuery = exports.sendPoll = exports.updateMessageKeyboard = exports.sendMessageKeyboard = exports.sendMessage = void 0;
 const dotenv_1 = require("dotenv");
 const store_1 = require("../store");
 const https = require("https");
@@ -193,3 +193,13 @@ const slugify = (categoryName, chat_id) => {
     return slug;
 };
 exports.slugify = slugify;
+const unicodeToEmoji = (unicode) => {
+    const set = unicode.split(" ");
+    const emoji = set
+        .map((s) => {
+        return String.fromCodePoint(parseInt(s, 16));
+    })
+        .join("");
+    return emoji;
+};
+exports.unicodeToEmoji = unicodeToEmoji;

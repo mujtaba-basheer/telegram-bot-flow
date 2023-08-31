@@ -74,7 +74,7 @@ const handleCategoryType = async (type, callback_query) => {
     try {
         const category_name = await store_1.default.get(`${chat_id}:cat-name`);
         const slug = await store_1.default.get(`${chat_id}:cat-slug`);
-        const emoji = await store_1.default.get(`${chat_id}:cat-emoji`);
+        const emojiUnicode = await store_1.default.get(`${chat_id}:cat-emoji`);
         const insertQuery = `
     INSERT INTO
       categories
@@ -96,10 +96,10 @@ const handleCategoryType = async (type, callback_query) => {
     `;
         await db_1.default.promise().query({
             sql: insertQuery,
-            values: [category_name, slug, type, username, emoji],
+            values: [category_name, slug, type, username, emojiUnicode],
         });
         let message = "Added category:\n";
-        message += `<b>Name:</b> ${category_name} ${emoji ? toEmoji.get(emoji) : ""}\n`;
+        message += `<b>Name:</b> ${category_name} ${emojiUnicode ? (0, bot_1.unicodeToEmoji)(emojiUnicode) : ""}\n`;
         message += `<b>Type:</b> ${type === "expend" ? "Way of expenditure" : "Source of earning"}`;
         (0, bot_1.sendMessage)(chat_id, message, "HTML");
         await store_1.default.del(`${chat_id}:cat-name`);
@@ -119,7 +119,7 @@ const handleShouldAddEmoji = async (answer, callback_query) => {
         switch (answer) {
             case "yes": {
                 await store_1.default.set(`${chat_id}:next`, "add-emoji");
-                (0, bot_1.sendMessage)(chat_id, "Please enter the emoji code. Check the list here https://raw.githubusercontent.com/muan/emojilib/main/dist/emoji-en-US.json");
+                (0, bot_1.sendMessage)(chat_id, "Please enter an emoji.");
                 break;
             }
             case "no": {

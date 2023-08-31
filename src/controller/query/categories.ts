@@ -1,6 +1,10 @@
 import store from "../../store";
 import db from "../../db";
-import { sendMessage, sendMessageKeyboard } from "../../utils/bot";
+import {
+  sendMessage,
+  sendMessageKeyboard,
+  unicodeToEmoji,
+} from "../../utils/bot";
 import { CallbackQueryT } from "../../../index";
 const toEmoji = require("emoji-name-map");
 
@@ -92,7 +96,7 @@ export const handleCategoryType: (
   try {
     const category_name = await store.get(`${chat_id}:cat-name`);
     const slug = await store.get(`${chat_id}:cat-slug`);
-    const emoji = await store.get(`${chat_id}:cat-emoji`);
+    const emojiUnicode = await store.get(`${chat_id}:cat-emoji`);
 
     const insertQuery = `
     INSERT INTO
@@ -116,12 +120,12 @@ export const handleCategoryType: (
 
     await db.promise().query<any>({
       sql: insertQuery,
-      values: [category_name, slug, type, username, emoji],
+      values: [category_name, slug, type, username, emojiUnicode],
     });
 
     let message = "Added category:\n";
     message += `<b>Name:</b> ${category_name} ${
-      emoji ? toEmoji.get(emoji) : ""
+      emojiUnicode ? unicodeToEmoji(emojiUnicode) : ""
     }\n`;
     message += `<b>Type:</b> ${
       type === "expend" ? "Way of expenditure" : "Source of earning"
@@ -152,10 +156,7 @@ export const handleShouldAddEmoji: (
     switch (answer) {
       case "yes": {
         await store.set(`${chat_id}:next`, "add-emoji");
-        sendMessage(
-          chat_id,
-          "Please enter the emoji code. Check the list here https://raw.githubusercontent.com/muan/emojilib/main/dist/emoji-en-US.json"
-        );
+        sendMessage(chat_id, "Please enter an emoji.");
         break;
       }
       case "no": {

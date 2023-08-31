@@ -70,14 +70,14 @@ const handleBudgets = async (action, callback_query) => {
                     .query(selectQuery));
                 const selection = results.map((c) => ({
                     name: c.name,
-                    display: c.name,
+                    display: c.name + (c.emoji ? ` ${(0, bot_1.unicodeToEmoji)(c.emoji)}` : ""),
                     slug: c.slug,
                     selected: false,
                 }));
                 const inline_keyboard = [
                     ...selection.map((c) => [
                         {
-                            text: c.name,
+                            text: c.display,
                             callback_data: `${chat_id}:budget-categories:${c.slug}`,
                         },
                     ]),
@@ -127,12 +127,11 @@ const handleBudgetCategories = async (slug, callback_query) => {
             selection.forEach((c) => {
                 if (c.slug === slug)
                     c.selected = !c.selected;
-                c.display = `${c.selected ? "☑️ " : ""}${c.name}`;
             });
             const inline_keyboard = [
                 ...selection.map((c) => [
                     {
-                        text: c.display,
+                        text: `${c.selected ? "☑️ " : ""}${c.display}`,
                         callback_data: `${chat_id}:budget-categories:${c.slug}`,
                     },
                 ]),

@@ -1,6 +1,6 @@
-import { sendMessage, sendMessageKeyboard, slugify } from "../../utils/bot";
+import { sendMessageKeyboard, slugify } from "../../utils/bot";
 import store from "../../store";
-const toEmoji = require("emoji-name-map");
+const emojiUnicode = require("emoji-unicode");
 
 // when a user enters the name of the category he/she wants to add
 export const handleCategoryName: (
@@ -41,29 +41,15 @@ export const handleCategoryName: (
 
 // when a user enters an emoji for the added category
 export const handleCategoryEmoji: (
-  code: string,
+  text: string,
   chat_id: number,
   command: string
-) => Promise<void> = async (code, chat_id, command) => {
+) => Promise<void> = async (text, chat_id, command) => {
   try {
-    code = code.trim().toLowerCase();
-    let emojiCode: string = "";
-    for (const key of Object.keys(toEmoji.emoji)) {
-      if (key === code) {
-        emojiCode = code;
-        break;
-      }
-    }
+    const emoji = text.trim();
+    const unicode: string = emojiUnicode(emoji);
 
-    if (emojiCode === "") {
-      sendMessage(
-        chat_id,
-        "Sorry but we couldn't find this emoji-code in out records 😞\nPlease enter another emoji"
-      );
-      return;
-    }
-
-    await store.set(`${chat_id}:cat-emoji`, emojiCode);
+    await store.set(`${chat_id}:cat-emoji`, unicode);
     await store.set(`${chat_id}:next`, "cat-type");
 
     const inline_keyboard = [

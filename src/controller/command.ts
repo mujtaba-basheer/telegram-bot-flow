@@ -1,6 +1,6 @@
 import { sendMessage, sendMessageKeyboard } from "../utils/bot";
 import db from "../db";
-import { UpdateT, TransactionT } from "../../index.d";
+import { UpdateT } from "../../index.d";
 import store from "../store";
 
 const handleStart: (

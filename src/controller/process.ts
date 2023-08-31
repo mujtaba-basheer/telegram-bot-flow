@@ -11,7 +11,6 @@ const processUpdate = async (
   next: NextFunction
 ) => {
   const { message, callback_query } = update;
-  console.log(message);
   let c_id: number | string = "";
   try {
     if (message) {

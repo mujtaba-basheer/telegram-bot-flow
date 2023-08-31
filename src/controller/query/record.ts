@@ -1,9 +1,8 @@
 import store from "../../store";
 import db from "../../db";
-import { sendMessage, answerQuery, formatCurrency } from "../../utils/bot";
+import { sendMessage, unicodeToEmoji, formatCurrency } from "../../utils/bot";
 import { checkBudgetOnTransaction } from "../../utils/budgets";
 import { CallbackQueryT, CategoryT } from "../../../index";
-const toEmoji = require("emoji-name-map");
 
 // when a user selects the category for an expediture/earning
 export const handleCategory: (
@@ -38,7 +37,7 @@ export const handleCategory: (
           `Your transaction was recorded successfully!\nType: ${
             command === "/earning" ? "Earning" : "Expenditure"
           }\nAmount: <b>${formatCurrency(+amount)}</b>\nCategory: ${name} ${
-            emoji ? toEmoji.get(emoji) : ""
+            emoji ? unicodeToEmoji(emoji) : ""
           }`,
           "HTML"
         );

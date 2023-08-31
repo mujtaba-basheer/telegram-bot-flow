@@ -83,3 +83,7 @@ type AnswerQueryFuncT = (
   text?: string,
   show_alert?: boolean
 ) => void;
+
+type SlugifyFuncT = (categoryName: string, chat_id: number) => string;
+
+type UnicodeToEmojiFuncT = (unicode: string) => string;

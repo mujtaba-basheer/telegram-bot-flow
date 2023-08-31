@@ -4,7 +4,6 @@ exports.handleNumber = void 0;
 const bot_1 = require("../../utils/bot");
 const db_1 = require("../../db");
 const store_1 = require("../../store");
-const toEmoji = require("emoji-name-map");
 const handleNumber = async (amt, chat_id, username, command) => {
     try {
         await store_1.default.set(`${chat_id}:amount`, amt);
@@ -42,7 +41,7 @@ const handleNumber = async (amt, chat_id, username, command) => {
         const reply_markup = {
             inline_keyboard: categories.map((c) => [
                 {
-                    text: c.name + (c.emoji ? " " + toEmoji.get(c.emoji) : ""),
+                    text: c.name + (c.emoji ? " " + (0, bot_1.unicodeToEmoji)(c.emoji) : ""),
                     callback_data: `${chat_id}:category:${c.slug}`,
                 },
             ]),

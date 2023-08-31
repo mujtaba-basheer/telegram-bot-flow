@@ -2,6 +2,7 @@ import store from "../../store";
 import db from "../../db";
 import {
   sendMessage,
+  unicodeToEmoji,
   sendMessageKeyboard,
   updateMessageKeyboard,
 } from "../../utils/bot";
@@ -93,7 +94,7 @@ export const handleBudgets: (
 
         const selection: SelectionT = results.map((c) => ({
           name: c.name,
-          display: c.name,
+          display: c.name + (c.emoji ? ` ${unicodeToEmoji(c.emoji)}` : ""),
           slug: c.slug,
           selected: false,
         }));
@@ -101,7 +102,7 @@ export const handleBudgets: (
         const inline_keyboard = [
           ...selection.map((c) => [
             {
-              text: c.name,
+              text: c.display,
               callback_data: `${chat_id}:budget-categories:${c.slug}`,
             },
           ]),
@@ -170,13 +171,12 @@ export const handleBudgetCategories: (
     } else {
       selection.forEach((c) => {
         if (c.slug === slug) c.selected = !c.selected;
-        c.display = `${c.selected ? "☑️ " : ""}${c.name}`;
       });
 
       const inline_keyboard = [
         ...selection.map((c) => [
           {
-            text: c.display,
+            text: `${c.selected ? "☑️ " : ""}${c.display}`,
             callback_data: `${chat_id}:budget-categories:${c.slug}`,
           },
         ]),

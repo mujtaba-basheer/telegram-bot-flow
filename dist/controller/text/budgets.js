@@ -4,7 +4,7 @@ exports.handleBudgetAmount = void 0;
 const bot_1 = require("../../utils/bot");
 const db_1 = require("../../db");
 const store_1 = require("../../store");
-const toEmoji = require("emoji-name-map");
+// when the user enters an amount for the budget threshold
 const handleBudgetAmount = async (amt, chat_id, username) => {
     try {
         if (!isNaN(amt) && amt > 0) {
@@ -15,6 +15,7 @@ const handleBudgetAmount = async (amt, chat_id, username) => {
           budgets
         (
           categories,
+          name,
           amount,
           status,
           isActive,
@@ -23,6 +24,7 @@ const handleBudgetAmount = async (amt, chat_id, username) => {
           date_added,
           last_checked
         ) VALUES (
+          ?,
           ?,
           0.00,
           "ok",
@@ -33,18 +35,31 @@ const handleBudgetAmount = async (amt, chat_id, username) => {
           CURRENT_TIMESTAMP()
         );
         `;
+            const selectedCategories = selection.filter((c) => c.selected);
+            const budgetName = selectedCategories.map((c) => c.name).join(", ");
             await db_1.default.promise().query({
                 sql: insertQuery,
                 values: [
-                    selection
-                        .filter((c) => c.selected)
-                        .map((c) => c.slug)
-                        .join(","),
+                    selectedCategories.map((c) => c.slug).join(","),
+                    budgetName,
                     username,
                     amt,
                 ],
             });
-            (0, bot_1.sendMessage)(chat_id, "Budget set successfully 💛\nYou'll receive notifications if you start reaching your threshold limit.");
+            (0, bot_1.sendMessage)(chat_id, `Budget set successfully for <b>${budgetName}</b>\nYou'll receive notifications if you start reaching your threshold limit.`, "HTML");
+            const getTotalQuery = `
+      SELECT
+        SUM(threshold) as total
+      FROM
+        budgets
+      WHERE
+        user = ?;
+      `;
+            const [[{ total }]] = (await db_1.default.promise().query({
+                sql: getTotalQuery,
+                values: [username],
+            }));
+            (0, bot_1.sendMessage)(chat_id, `Total monthly budget so far: <b>Rs. ${total}</b>.`, "HTML");
         }
         else {
             (0, bot_1.sendMessage)(chat_id, "Please enter a valid amount 😅");

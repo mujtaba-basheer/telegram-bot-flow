@@ -1,8 +1,7 @@
-import { sendMessageKeyboard } from "../../utils/bot";
+import { sendMessageKeyboard, unicodeToEmoji } from "../../utils/bot";
 import db from "../../db";
 import { CategoryT } from "../../../index.d";
 import store from "../../store";
-const toEmoji = require("emoji-name-map");
 
 export const handleNumber: (
   amt: number,
@@ -48,7 +47,7 @@ export const handleNumber: (
     const reply_markup = {
       inline_keyboard: categories.map((c) => [
         {
-          text: c.name + (c.emoji ? " " + toEmoji.get(c.emoji) : ""),
+          text: c.name + (c.emoji ? " " + unicodeToEmoji(c.emoji) : ""),
           callback_data: `${chat_id}:category:${c.slug}`,
         },
       ]),

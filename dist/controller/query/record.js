@@ -5,7 +5,6 @@ const store_1 = require("../../store");
 const db_1 = require("../../db");
 const bot_1 = require("../../utils/bot");
 const budgets_1 = require("../../utils/budgets");
-const toEmoji = require("emoji-name-map");
 // when a user selects the category for an expediture/earning
 const handleCategory = async (category, callback_query) => {
     const { from: { username }, message: { chat: { id: chat_id }, }, } = callback_query;
@@ -26,7 +25,7 @@ const handleCategory = async (category, callback_query) => {
           1;
         `);
                 const { name, emoji } = results[0];
-                (0, bot_1.sendMessage)(chat_id, `Your transaction was recorded successfully!\nType: ${command === "/earning" ? "Earning" : "Expenditure"}\nAmount: <b>${(0, bot_1.formatCurrency)(+amount)}</b>\nCategory: ${name} ${emoji ? toEmoji.get(emoji) : ""}`, "HTML");
+                (0, bot_1.sendMessage)(chat_id, `Your transaction was recorded successfully!\nType: ${command === "/earning" ? "Earning" : "Expenditure"}\nAmount: <b>${(0, bot_1.formatCurrency)(+amount)}</b>\nCategory: ${name} ${emoji ? (0, bot_1.unicodeToEmoji)(emoji) : ""}`, "HTML");
                 const insertQuery = `
         INSERT INTO transactions
         (
