@@ -30,47 +30,34 @@ export const handleBudgets: (
   try {
     switch (action) {
       case "view": {
-        type CategoryT = {
+        type BudgetT = {
           name: string;
-          slug: string;
-          emoji: string;
-          scope: string;
-          type: string;
+          threshold: number;
+          amount: number;
         };
         const selectQuery = `
         SELECT
-          name, slug, emoji, scope, type
+          name, threshold, amount
         FROM
-          categories
+          budgets
         WHERE
-          user = "global"
-          OR user = ?;
+          user = ?;
         `;
         // @ts-ignore
-        const [results] = await db.promise().query<CategoryT[]>({
+        const [results] = await db.promise().query<BudgetT[]>({
           sql: selectQuery,
           values: [username],
         });
-        let message = "<b>Global Categories:</b>\n";
-        const globalCategories: CategoryT[] = [];
-        const customCategories: CategoryT[] = [];
-        results.forEach((c) => {
-          if (c.scope === "global") globalCategories.push(c);
-          else if (c.scope === "custom") customCategories.push(c);
-        });
-        globalCategories.forEach((c, i, arr) => {
-          const { name, emoji, type } = c;
-          message += `${name} ${emoji ? toEmoji.get(emoji) : ""} (${type})`;
-          if (i !== arr.length - 1) message += "\n";
-        });
-        if (customCategories.length) {
-          message += "\n\n<b>Custom Categories:</b>\n";
-          customCategories.forEach((c, i, arr) => {
-            const { name, emoji, type } = c;
-            message += `${name} ${emoji ? toEmoji.get(emoji) : ""} (${type})`;
-            if (i !== arr.length - 1) message += "\n";
-          });
+        let message = ``;
+        for (let i = 0; i < results.length; i++) {
+          const budget = results[i];
+          const { name, threshold, amount } = budget;
+          message += `<b>${
+            i + 1
+          }. ${name}</b>\nThreshold: Rs. ${threshold}\nSpent: Rs. ${amount}`;
+          if (i != results.length - 1) message += `\n\n`;
         }
+
         sendMessage(chat_id, message, "HTML");
 
         break;
