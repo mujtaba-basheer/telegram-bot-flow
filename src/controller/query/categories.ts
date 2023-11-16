@@ -94,47 +94,77 @@ export const handleCategoryType: (
     },
   } = callback_query;
   try {
-    const category_name = await store.get(`${chat_id}:cat-name`);
-    const slug = await store.get(`${chat_id}:cat-slug`);
-    const emojiUnicode = await store.get(`${chat_id}:cat-emoji`);
+    switch (type) {
+      case "expend": {
+        await store.set(`${chat_id}:next`, "set-is-recurring");
 
-    const insertQuery = `
-    INSERT INTO
-      categories
-    (
-      name,
-      slug,
-      type,
-      user,
-      emoji,
-      scope
-    ) VALUES (
-      ?,
-      ?,
-      ?,
-      ?,
-      ?,
-      "custom"
-    );
-    `;
+        const inline_keyboard = [
+          [
+            {
+              text: "Yes 🔁",
+              callback_data: `${chat_id}:set-is-recurring:yes`,
+            },
+            {
+              text: "No 🚫",
+              callback_data: `${chat_id}:set-is-recurring:no`,
+            },
+          ],
+        ];
+        const reply_markup = {
+          inline_keyboard,
+        };
+        sendMessageKeyboard(
+          chat_id,
+          "Is this expense a recurring one?",
+          reply_markup
+        );
 
-    await db.promise().query<any>({
-      sql: insertQuery,
-      values: [category_name, slug, type, username, emojiUnicode],
-    });
+        break;
+      }
+      case "earning":
+      default: {
+        const category_name = await store.get(`${chat_id}:cat-name`);
+        const slug = await store.get(`${chat_id}:cat-slug`);
+        const emojiUnicode = await store.get(`${chat_id}:cat-emoji`);
 
-    let message = "Added category:\n";
-    message += `<b>Name:</b> ${category_name} ${
-      emojiUnicode ? unicodeToEmoji(emojiUnicode) : ""
-    }\n`;
-    message += `<b>Type:</b> ${
-      type === "expend" ? "Way of expenditure" : "Source of earning"
-    }`;
-    sendMessage(chat_id, message, "HTML");
+        const insertQuery = `
+        INSERT INTO
+          categories
+        (
+          name,
+          slug,
+          type,
+          user,
+          emoji,
+          scope
+        ) VALUES (
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          "custom"
+        );
+        `;
 
-    await store.del(`${chat_id}:cat-name`);
-    await store.del(`${chat_id}:cat-slug`);
-    await store.del(`${chat_id}:cat-emoji`);
+        await db.promise().query<any>({
+          sql: insertQuery,
+          values: [category_name, slug, type, username, emojiUnicode],
+        });
+
+        let message = "Added category:\n";
+        message += `<b>Name:</b> ${category_name} ${
+          emojiUnicode ? unicodeToEmoji(emojiUnicode) : ""
+        }\n`;
+        message += `<b>Type:</b> Source of earning`;
+        sendMessage(chat_id, message, "HTML");
+
+        await store.del(`${chat_id}:cat-name`);
+        await store.del(`${chat_id}:cat-slug`);
+        await store.del(`${chat_id}:cat-emoji`);
+        await store.del(`${chat_id}:next`);
+      }
+    }
   } catch (error) {
     console.error(error);
     sendMessage(chat_id, "Oops! There was some error processing your data 😵‍💫");
@@ -187,6 +217,120 @@ export const handleShouldAddEmoji: (
         break;
       }
     }
+  } catch (error) {
+    console.error(error);
+    sendMessage(chat_id, "Oops! There was some error processing your data 😵‍💫");
+  }
+};
+
+// when a user selects wether added expense is recurring
+export const handleIsRecurring: (
+  answer: string,
+  callback_query: CallbackQueryT
+) => Promise<void> = async (answer, callback_query) => {
+  const {
+    from: { username },
+    message: {
+      chat: { id: chat_id },
+    },
+  } = callback_query;
+  try {
+    await store.set(`${chat_id}:cat-is-recurring`, answer);
+    await store.set(`${chat_id}:next`, "set-is-utils");
+
+    const inline_keyboard = [
+      [
+        {
+          text: "Yes ✅",
+          callback_data: `${chat_id}:set-is-utils:yes`,
+        },
+        {
+          text: "No 🚫",
+          callback_data: `${chat_id}:set-is-utils:no`,
+        },
+      ],
+    ];
+    const reply_markup = {
+      inline_keyboard,
+    };
+    sendMessageKeyboard(
+      chat_id,
+      "Does this category come under Essentials/Utilities?",
+      reply_markup
+    );
+  } catch (error) {
+    console.error(error);
+    sendMessage(chat_id, "Oops! There was some error processing your data 😵‍💫");
+  }
+};
+
+// when a user selects wether added expense is essential/utility
+export const handleIsUtils: (
+  answer: string,
+  callback_query: CallbackQueryT
+) => Promise<void> = async (answer, callback_query) => {
+  const {
+    from: { username },
+    message: {
+      chat: { id: chat_id },
+    },
+  } = callback_query;
+  try {
+    const category_name = await store.get(`${chat_id}:cat-name`);
+    const slug = await store.get(`${chat_id}:cat-slug`);
+    const emojiUnicode = await store.get(`${chat_id}:cat-emoji`);
+    const isRecurring =
+      (await store.get(`${chat_id}:cat-is-recurring`)) === "yes" ? 1 : 0;
+    const isUtils = answer === "yes" ? 1 : 0;
+
+    const insertQuery = `
+    INSERT INTO
+      categories
+    (
+      name,
+      slug,
+      type,
+      user,
+      emoji,
+      scope,
+      isRecurring,
+      isUtils
+    ) VALUES (
+      ?,
+      ?,
+      "expend",
+      ?,
+      ?,
+      "custom",
+      ?,
+      ?
+    );
+    `;
+
+    await db.promise().query<any>({
+      sql: insertQuery,
+      values: [
+        category_name,
+        slug,
+        username,
+        emojiUnicode,
+        isRecurring,
+        isUtils,
+      ],
+    });
+
+    let message = "Added category:\n";
+    message += `<b>Name:</b> ${category_name} ${
+      emojiUnicode ? unicodeToEmoji(emojiUnicode) : ""
+    }\n`;
+    message += `<b>Type:</b> Way of expenditure`;
+    sendMessage(chat_id, message, "HTML");
+
+    await store.del(`${chat_id}:cat-name`);
+    await store.del(`${chat_id}:cat-slug`);
+    await store.del(`${chat_id}:cat-emoji`);
+    await store.del(`${chat_id}:cat-is-recurring`);
+    await store.del(`${chat_id}:next`);
   } catch (error) {
     console.error(error);
     sendMessage(chat_id, "Oops! There was some error processing your data 😵‍💫");

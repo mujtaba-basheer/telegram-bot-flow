@@ -5,6 +5,8 @@ import { CallbackQueryT } from "../../../index";
 import {
   handleCategories,
   handleCategoryType,
+  handleIsRecurring,
+  handleIsUtils,
   handleShouldAddEmoji,
 } from "./categories";
 import { handleCategory } from "./record";
@@ -24,7 +26,6 @@ const processQuery: (
   try {
     const command = await store.get(`${chat_id}:command`);
     const next = await store.get(`${chat_id}:next`);
-    console.log({ data, command, next });
 
     switch (command) {
       case "/earning":
@@ -52,6 +53,16 @@ const processQuery: (
           }
           case "cat-type": {
             handleCategoryType(data, callback_query);
+            answerQuery(callback_query_id);
+            break;
+          }
+          case "set-is-recurring": {
+            handleIsRecurring(data, callback_query);
+            answerQuery(callback_query_id);
+            break;
+          }
+          case "set-is-utils": {
+            handleIsUtils(data, callback_query);
             answerQuery(callback_query_id);
             break;
           }

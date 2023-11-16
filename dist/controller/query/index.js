@@ -11,7 +11,6 @@ const processQuery = async (callback_query_id, callback_data, callback_query) =>
     try {
         const command = await store_1.default.get(`${chat_id}:command`);
         const next = await store_1.default.get(`${chat_id}:next`);
-        console.log({ data, command, next });
         switch (command) {
             case "/earning":
             case "/expend": {
@@ -38,6 +37,16 @@ const processQuery = async (callback_query_id, callback_data, callback_query) =>
                     }
                     case "cat-type": {
                         (0, categories_1.handleCategoryType)(data, callback_query);
+                        (0, bot_1.answerQuery)(callback_query_id);
+                        break;
+                    }
+                    case "set-is-recurring": {
+                        (0, categories_1.handleIsRecurring)(data, callback_query);
+                        (0, bot_1.answerQuery)(callback_query_id);
+                        break;
+                    }
+                    case "set-is-utils": {
+                        (0, categories_1.handleIsUtils)(data, callback_query);
                         (0, bot_1.answerQuery)(callback_query_id);
                         break;
                     }
