@@ -5,6 +5,7 @@ const bot_1 = require("../../utils/bot");
 const store_1 = require("../../store");
 const categories_1 = require("./categories");
 const record_1 = require("./record");
+const savings_1 = require("./savings");
 const budgets_1 = require("./budgets");
 const processText = async (text, update) => {
     const { message: { chat: { id: chat_id, username }, }, } = update;
@@ -38,7 +39,6 @@ const processText = async (text, update) => {
                 break;
             }
             case "/categories": {
-                const next = await store_1.default.get(`${chat_id}:next`);
                 switch (next) {
                     case "cat-name": {
                         if (text.includes("\n")) {
@@ -61,6 +61,23 @@ const processText = async (text, update) => {
                 switch (next) {
                     case "budget-amount": {
                         (0, budgets_1.handleBudgetAmount)(+text, chat_id, username);
+                        break;
+                    }
+                }
+                break;
+            }
+            case "/savings": {
+                switch (next) {
+                    case "goal-name": {
+                        (0, savings_1.handleSavingsName)(text, chat_id);
+                        break;
+                    }
+                    case "goal-amount": {
+                        (0, savings_1.handleNumber)(text, chat_id);
+                        break;
+                    }
+                    case "goal-duration": {
+                        (0, savings_1.handleNumberOfWeeks)(text, chat_id);
                         break;
                     }
                 }

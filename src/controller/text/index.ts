@@ -3,7 +3,12 @@ import { UpdateT } from "../../../index.d";
 import store from "../../store";
 
 import { handleCategoryEmoji, handleCategoryName } from "./categories";
-import { handleNumber } from "./record";
+import { handleNumber as handleTransactionAmt } from "./record";
+import {
+  handleSavingsName,
+  handleNumber as handleGoalTargetAmt,
+  handleNumberOfWeeks,
+} from "./savings";
 import { handleBudgetAmount } from "./budgets";
 
 export const processText: (
@@ -34,7 +39,7 @@ export const processText: (
               } else sendMessage(chat_id, "Please enter a valid number 😅");
             } else {
               await store.set(`${chat_id}:next`, "category");
-              handleNumber(+text, chat_id, username, command);
+              handleTransactionAmt(+text, chat_id, username, command);
             }
             break;
           }
@@ -49,7 +54,6 @@ export const processText: (
         break;
       }
       case "/categories": {
-        const next = await store.get(`${chat_id}:next`);
         switch (next) {
           case "cat-name": {
             if (text.includes("\n")) {
@@ -74,6 +78,23 @@ export const processText: (
         switch (next) {
           case "budget-amount": {
             handleBudgetAmount(+text, chat_id, username);
+            break;
+          }
+        }
+        break;
+      }
+      case "/savings": {
+        switch (next) {
+          case "goal-name": {
+            handleSavingsName(text, chat_id);
+            break;
+          }
+          case "goal-amount": {
+            handleGoalTargetAmt(text, chat_id);
+            break;
+          }
+          case "goal-duration": {
+            handleNumberOfWeeks(text, chat_id);
             break;
           }
         }

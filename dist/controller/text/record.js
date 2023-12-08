@@ -4,6 +4,7 @@ exports.handleNumber = void 0;
 const bot_1 = require("../../utils/bot");
 const db_1 = require("../../db");
 const store_1 = require("../../store");
+// When a user enters the transaction amount
 const handleNumber = async (amt, chat_id, username, command) => {
     try {
         await store_1.default.set(`${chat_id}:amount`, amt);

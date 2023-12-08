@@ -1,8 +1,12 @@
 import store from "../../store";
 import db from "../../db";
-import { sendMessage, answerQuery, formatCurrency } from "../../utils/bot";
-import { CallbackQueryT, CategoryT } from "../../../index";
-const toEmoji = require("emoji-name-map");
+import {
+  sendMessage,
+  answerQuery,
+  formatCurrency,
+  unicodeToEmoji,
+} from "../../utils/bot";
+import { CallbackQueryT } from "../../../index";
 
 // when a user selects the kind of stats he/she wants to see
 export const handleStats: (
@@ -51,7 +55,7 @@ export const handleStats: (
               type === "expend" ? "Expenditure" : "Earning"
             }\n`;
             message += `Category: ${cname} ${
-              cemoji ? toEmoji.get(cemoji) : ""
+              cemoji ? unicodeToEmoji(cemoji) : ""
             }\n\n`;
           }
           sendMessage(chat_id, message, "HTML");
@@ -124,7 +128,9 @@ export const handleStats: (
           for (let i = 0; i < byCatRes.length; i++) {
             const { cemoji, cname, sum } = byCatRes[i];
             const percentage = ((sum / total) * 100).toFixed(2);
-            const catDisplay = `${cname} ${cemoji ? toEmoji.get(cemoji) : ""}`;
+            const catDisplay = `${cname} ${
+              cemoji ? unicodeToEmoji(cemoji) : ""
+            }`;
             message += `${catDisplay}: Rs. ${sum} (${percentage}%)\n`;
           }
         } else {

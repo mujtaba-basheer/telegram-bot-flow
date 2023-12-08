@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleStats = void 0;
 const db_1 = require("../../db");
 const bot_1 = require("../../utils/bot");
-const toEmoji = require("emoji-name-map");
 // when a user selects the kind of stats he/she wants to see
 const handleStats = async (stats, callback_query) => {
     const { from: { username }, message: { chat: { id: chat_id }, }, } = callback_query;
@@ -33,7 +32,7 @@ const handleStats = async (stats, callback_query) => {
                         message += `Date: ${d.toDateString()}, ${d.toLocaleTimeString()}\n`;
                         message += `Amount: <b>${(0, bot_1.formatCurrency)(amount)}</b>\n`;
                         message += `Type: ${type === "expend" ? "Expenditure" : "Earning"}\n`;
-                        message += `Category: ${cname} ${cemoji ? toEmoji.get(cemoji) : ""}\n\n`;
+                        message += `Category: ${cname} ${cemoji ? (0, bot_1.unicodeToEmoji)(cemoji) : ""}\n\n`;
                     }
                     (0, bot_1.sendMessage)(chat_id, message, "HTML");
                 }
@@ -86,7 +85,7 @@ const handleStats = async (stats, callback_query) => {
                     for (let i = 0; i < byCatRes.length; i++) {
                         const { cemoji, cname, sum } = byCatRes[i];
                         const percentage = ((sum / total) * 100).toFixed(2);
-                        const catDisplay = `${cname} ${cemoji ? toEmoji.get(cemoji) : ""}`;
+                        const catDisplay = `${cname} ${cemoji ? (0, bot_1.unicodeToEmoji)(cemoji) : ""}`;
                         message += `${catDisplay}: Rs. ${sum} (${percentage}%)\n`;
                     }
                 }

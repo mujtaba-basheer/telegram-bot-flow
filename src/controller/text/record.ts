@@ -3,6 +3,7 @@ import db from "../../db";
 import { CategoryT } from "../../../index.d";
 import store from "../../store";
 
+// When a user enters the transaction amount
 export const handleNumber: (
   amt: number,
   chat_id: number,

@@ -6,6 +6,7 @@ const categories_1 = require("./categories");
 const record_1 = require("./record");
 const stats_1 = require("./stats");
 const budgets_1 = require("./budgets");
+const savings_1 = require("./savings");
 const processQuery = async (callback_query_id, callback_data, callback_query) => {
     const [chat_id, type, data] = callback_data.split(":");
     try {
@@ -67,6 +68,20 @@ const processQuery = async (callback_query_id, callback_data, callback_query) =>
                     case "budget-categories": {
                         (0, budgets_1.handleBudgetCategories)(data, callback_query);
                         (0, bot_1.answerQuery)(callback_query_id);
+                        break;
+                    }
+                }
+                break;
+            }
+            case "/savings": {
+                switch (next) {
+                    case "view/add": {
+                        (0, savings_1.handleSavings)(data, callback_query);
+                        (0, bot_1.answerQuery)(callback_query_id);
+                        break;
+                    }
+                    default: {
+                        (0, bot_1.sendMessage)(chat_id, "Seems like you entered an invalid text or option 😵");
                         break;
                     }
                 }

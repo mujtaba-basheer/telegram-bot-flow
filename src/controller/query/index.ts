@@ -12,6 +12,7 @@ import {
 import { handleCategory } from "./record";
 import { handleStats } from "./stats";
 import { handleBudgets, handleBudgetCategories } from "./budgets";
+import { handleSavings } from "./savings";
 
 const processQuery: (
   callback_query_id: string,
@@ -87,6 +88,23 @@ const processQuery: (
           case "budget-categories": {
             handleBudgetCategories(data, callback_query);
             answerQuery(callback_query_id);
+            break;
+          }
+        }
+        break;
+      }
+      case "/savings": {
+        switch (next) {
+          case "view/add": {
+            handleSavings(data, callback_query);
+            answerQuery(callback_query_id);
+            break;
+          }
+          default: {
+            sendMessage(
+              chat_id,
+              "Seems like you entered an invalid text or option 😵"
+            );
             break;
           }
         }

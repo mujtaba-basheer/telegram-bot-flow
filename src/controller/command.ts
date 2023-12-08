@@ -127,6 +127,33 @@ const handleCategories: (chat_id: number) => Promise<void> = async (
   }
 };
 
+const handleSavings: (chat_id: number) => Promise<void> = async (chat_id) => {
+  try {
+    await store.set(`${chat_id}:next`, "view/add");
+    const buttons = [
+      [
+        {
+          text: "View your Saving Goals 🧐",
+          callback_data: `${chat_id}:savings:view-goals`,
+        },
+      ],
+      [
+        {
+          text: "Add a Savings Goal 🎯",
+          callback_data: `${chat_id}:savings:set-goal`,
+        },
+      ],
+    ];
+    const reply_markup = {
+      inline_keyboard: buttons,
+    };
+    sendMessageKeyboard(chat_id, "Please select an option:", reply_markup);
+  } catch (error) {
+    console.error(error);
+    sendMessage(chat_id, "Oops! There was some error processing your data 😵‍💫");
+  }
+};
+
 export const processCommand = async (command: string, update: UpdateT) => {
   const {
     message: {
@@ -159,6 +186,10 @@ export const processCommand = async (command: string, update: UpdateT) => {
       }
       case "/categories": {
         await handleCategories(chat_id);
+        break;
+      }
+      case "/savings": {
+        await handleSavings(chat_id);
         break;
       }
       default: {
