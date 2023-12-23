@@ -26,8 +26,10 @@ const sendMessage = (chat_id, text, parse_mode) => {
         res.on("end", () => {
             if (res.statusCode === 200)
                 console.log("Message sent successfully!");
-            else
+            else {
                 console.log("Error Sending Message!");
+                console.log(JSON.parse(data));
+            }
         });
     });
     request.write(data);

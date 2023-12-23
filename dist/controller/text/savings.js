@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleNumberOfWeeks = exports.handleNumber = exports.handleSavingsName = void 0;
 const bot_1 = require("../../utils/bot");
 const store_1 = require("../../store");
+const db_1 = require("../../db");
 // when a user enters the name of the saving goal
 const handleSavingsName = async (name, chat_id) => {
     try {
@@ -31,7 +32,7 @@ const handleNumber = async (text, chat_id) => {
         }
         await store_1.default.set(`${chat_id}:amount`, +text);
         await store_1.default.set(`${chat_id}:next`, "goal-duration");
-        (0, bot_1.sendMessage)(chat_id, "Sure 👍. When do wish to achieve your saving goal?\nPlease mention number of weeks from now");
+        (0, bot_1.sendMessage)(chat_id, "Sure 👍. When do wish to achieve your saving goal?\nPlease mention number of months from now");
     }
     catch (error) {
         console.error(error);
@@ -39,7 +40,7 @@ const handleNumber = async (text, chat_id) => {
 };
 exports.handleNumber = handleNumber;
 // When a user enters the saving goal duration in weeks
-const handleNumberOfWeeks = async (text, chat_id) => {
+const handleNumberOfWeeks = async (text, chat_id, username) => {
     try {
         if (isNaN(+text) || text.includes(".") || +text < 1) {
             (0, bot_1.sendMessage)(chat_id, "Please enter a valid whole number 😅");
@@ -47,13 +48,20 @@ const handleNumberOfWeeks = async (text, chat_id) => {
         }
         const goalName = await store_1.default.get(`${chat_id}:goal-name`);
         const targetAmount = await store_1.default.get(`${chat_id}:amount`);
-        console.log({
-            goalName,
-            targetAmount,
-            durationInWeeks: +text,
+        const insertQuery = `
+    INSERT INTO
+      savings (name, user, duration, amount)
+    VALUES
+      (?, ?, ?, ?);
+    `;
+        await db_1.default.promise().query({
+            sql: insertQuery,
+            values: [goalName, username, +text, +targetAmount],
         });
-        // { goalName: 'Diver Watch', targetAmount: '15000', durationInWeeks: 3 }
-        (0, bot_1.sendMessage)(chat_id, "Thank you.");
+        (0, bot_1.sendMessage)(chat_id, "Savings goal added successfully 💯");
+        await store_1.default.del(`${chat_id}:goal-name`);
+        await store_1.default.del(`${chat_id}:amount`);
+        await store_1.default.set(`${chat_id}:next`, "");
     }
     catch (error) {
         console.error(error);

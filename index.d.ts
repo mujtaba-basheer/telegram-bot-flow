@@ -55,6 +55,17 @@ export type CategoryT = {
   emoji: string;
 };
 
+export type SavingsT = {
+  name: string;
+  user: string;
+  duration: number;
+  amount: number;
+  status: string;
+  isActive: 1 | 0;
+  date_added: Date;
+  last_checked: Date;
+};
+
 type SendMessageFuncT = (
   chat_id: number | string,
   text: string,

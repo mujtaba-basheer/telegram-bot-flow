@@ -94,7 +94,7 @@ export const processText: (
             break;
           }
           case "goal-duration": {
-            handleNumberOfWeeks(text, chat_id);
+            handleNumberOfWeeks(text, chat_id, username);
             break;
           }
         }

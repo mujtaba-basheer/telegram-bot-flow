@@ -77,7 +77,7 @@ const processText = async (text, update) => {
                         break;
                     }
                     case "goal-duration": {
-                        (0, savings_1.handleNumberOfWeeks)(text, chat_id);
+                        (0, savings_1.handleNumberOfWeeks)(text, chat_id, username);
                         break;
                     }
                 }

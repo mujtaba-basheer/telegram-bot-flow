@@ -1,5 +1,6 @@
 import { sendMessage } from "../../utils/bot";
 import store from "../../store";
+import db from "../../db";
 
 // when a user enters the name of the saving goal
 export const handleSavingsName: (
@@ -40,7 +41,7 @@ export const handleNumber: (
     await store.set(`${chat_id}:next`, "goal-duration");
     sendMessage(
       chat_id,
-      "Sure 👍. When do wish to achieve your saving goal?\nPlease mention number of weeks from now"
+      "Sure 👍. When do wish to achieve your saving goal?\nPlease mention number of months from now"
     );
   } catch (error) {
     console.error(error);
@@ -50,8 +51,9 @@ export const handleNumber: (
 // When a user enters the saving goal duration in weeks
 export const handleNumberOfWeeks: (
   text: string,
-  chat_id: number
-) => Promise<void> = async (text, chat_id) => {
+  chat_id: number,
+  username: string
+) => Promise<void> = async (text, chat_id, username) => {
   try {
     if (isNaN(+text) || text.includes(".") || +text < 1) {
       sendMessage(chat_id, "Please enter a valid whole number 😅");
@@ -61,14 +63,23 @@ export const handleNumberOfWeeks: (
     const goalName = await store.get(`${chat_id}:goal-name`);
     const targetAmount = await store.get(`${chat_id}:amount`);
 
-    console.log({
-      goalName,
-      targetAmount,
-      durationInWeeks: +text,
-    });
-    // { goalName: 'Diver Watch', targetAmount: '15000', durationInWeeks: 3 }
+    const insertQuery = `
+    INSERT INTO
+      savings (name, user, duration, amount)
+    VALUES
+      (?, ?, ?, ?);
+    `;
 
-    sendMessage(chat_id, "Thank you.");
+    await db.promise().query<any>({
+      sql: insertQuery,
+      values: [goalName, username, +text, +targetAmount],
+    });
+
+    sendMessage(chat_id, "Savings goal added successfully 💯");
+
+    await store.del(`${chat_id}:goal-name`);
+    await store.del(`${chat_id}:amount`);
+    await store.set(`${chat_id}:next`, "");
   } catch (error) {
     console.error(error);
   }

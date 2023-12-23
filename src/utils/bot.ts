@@ -45,7 +45,10 @@ export const sendMessage: SendMessageFuncT = (chat_id, text, parse_mode) => {
 
       res.on("end", () => {
         if (res.statusCode === 200) console.log("Message sent successfully!");
-        else console.log("Error Sending Message!");
+        else {
+          console.log("Error Sending Message!");
+          console.log(JSON.parse(data));
+        }
       });
     }
   );
